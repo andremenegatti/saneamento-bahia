@@ -1,0 +1,79 @@
+municipio,tipo_servico,prestador,in004_tarifa_media_praticada,in005_tarifa_media_de_agua,in006_tarifa_media_de_esgoto,in055_indice_de_atendimento_total_de_agua,in015_indice_de_coleta_de_esgoto,in046_indice_de_esgoto_tratado_referido_a_agua_consumida,in012_indicador_de_desempenho_financeiro,fn033_investimentos_totais_realizados_pelo_prestador_de_servicos,fn048_investimentos_totais_realizados_pelo_municipio,fn058_investimentos_totais_realizados_pelo_estado
+Araci,Água e Esgoto,Empresa Baiana de Águas e Saneamento S.A.,4.69,4.79,1.14,49.63,3.18,3.18,109.39,0,NA,0
+Araci,Esgotos,Prefeitura Municipal de Araci,NA,NA,NA,NA,NA,NA,0,NA,0,0
+Banzaê,Água,Empresa Baiana de Águas e Saneamento S.A.,5.09,5.09,NA,44.38,NA,NA,115.19,0,NA,0
+Banzaê,Esgotos,Prefeitura Municipal de Banzaê,NA,NA,NA,NA,NA,NA,0,NA,41917.5,0
+Barra da Estiva,Água,Empresa Baiana de Águas e Saneamento S.A.,4.5,4.5,NA,4.66,NA,NA,34.86,0,NA,0
+Barra da Estiva,Água e Esgoto,Prefeitura Municipal de Barra da Estiva,NA,NA,NA,95.34,43.75,0,0,NA,0,0
+Biritinga,Água,Empresa Baiana de Águas e Saneamento S.A.,5.08,29.49,NA,45.09,NA,NA,54.45,0,NA,0
+Biritinga,Esgotos,Prefeitura Municipal de Biritinga,NA,NA,NA,NA,NA,NA,0,NA,0,0
+Boa Vista do Tupim,Água,Empresa Baiana de Águas e Saneamento S.A.,4.66,4.66,NA,72.08,NA,NA,68.32,45973.1,NA,0
+Boa Vista do Tupim,Esgotos,Prefeitura Municipal de Boa Vista do Tupim,NA,NA,NA,NA,NA,NA,11.54,NA,40000,0
+Brejões,Água,Empresa Baiana de Águas e Saneamento S.A.,5.1,5.1,NA,73.75,NA,NA,65.11,20756,NA,0
+Brejões,Esgotos,Prefeitura Municipal de Brejões,NA,NA,NA,NA,NA,NA,0,NA,265000,0
+Brotas de Macaúbas,Água,Empresa Baiana de Águas e Saneamento S.A.,4.76,4.76,NA,38.01,NA,NA,88.26,66847.17,NA,0
+Brotas de Macaúbas,Esgotos,Prefeitura Municipal de Brotas de Macaubas,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Caculé,Água,Empresa Baiana de Águas e Saneamento S.A.,4.86,5.2,NA,87.81,NA,NA,104.07,0,NA,0
+Caculé,Esgotos,Prefeitura Municipal de Caculé,NA,NA,NA,NA,NA,NA,0,NA,360000,1200000
+Canudos,Água,Empresa Baiana de Águas e Saneamento S.A.,4.86,4.86,NA,65.89,NA,NA,120.06,0,NA,0
+Canudos,Esgotos,Prefeitura Municipal de Canudos,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Capela do Alto Alegre,Água,Empresa Baiana de Águas e Saneamento S.A.,5.17,5.17,NA,78.69,NA,NA,92.84,0,NA,0
+Capela do Alto Alegre,Esgotos,Prefeitura Municipal de Capela do Alto Alegre,NA,NA,NA,NA,NA,NA,0,NA,12000,NA
+Cícero Dantas,Água,Empresa Baiana de Águas e Saneamento S.A.,4.98,5.35,NA,71.15,NA,NA,100.4,1033001.4,NA,0
+Cícero Dantas,Esgotos,Prefeitura Municipal de Cícero Dantas,NA,NA,NA,NA,NA,NA,0,NA,200000,NA
+Fátima,Água,Empresa Baiana de Águas e Saneamento S.A.,4.39,9.18,NA,100,NA,NA,73.37,0,NA,0
+Fátima,Esgotos,Prefeitura Municipal de Fátima,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Floresta Azul,Água,Empresa Baiana de Águas e Saneamento S.A.,4.88,NA,NA,80.56,NA,NA,58.83,0,NA,0
+Floresta Azul,Esgotos,Prefeitura Municipal de Floresta Azul,NA,NA,NA,NA,NA,NA,0,NA,92126,0
+Gavião,Água,Empresa Baiana de Águas e Saneamento S.A.,5,5,NA,77.62,NA,NA,96.34,0,NA,0
+Gavião,Esgotos,Prefeitura Municipal de Gavião,NA,NA,NA,NA,NA,NA,52.41,NA,0,0
+Inhambupe,Água,Empresa Baiana de Águas e Saneamento S.A.,4.69,4.69,NA,59.37,NA,NA,122.21,0,NA,0
+Inhambupe,Esgotos,Prefeitura Municipal de Inhambupe,NA,NA,NA,NA,NA,NA,27.66,NA,0,NA
+Irará,Água,Empresa Baiana de Águas e Saneamento S.A.,4.76,4.76,NA,43.88,NA,NA,92.56,1613054.18,NA,0
+Irará,Água,Prefeitura Municipal de Irará,NA,NA,NA,54.57,NA,NA,0,NA,0,0
+Itacaré,Água,Prefeitura Municipal de Itacaré,NA,NA,NA,30.4,NA,NA,0,NA,0,0
+Itacaré,Água e Esgoto,Empresa Baiana de Águas e Saneamento S.A.,5.55,6.1,4.72,53.99,84.91,84.91,92.08,130453.24,NA,0
+Itaguaçu da Bahia,Água,Empresa Baiana de Águas e Saneamento S.A.,4.93,4.93,NA,40.73,NA,NA,86.31,152742.24,NA,0
+Itaguaçu da Bahia,Esgotos,Prefeitura Municipal de Itaguaçu da Bahia,NA,NA,NA,NA,NA,NA,1.43,NA,720000,NA
+Itanhém,Água,Empresa Baiana de Águas e Saneamento S.A.,4.74,4.74,NA,70.63,NA,NA,101.69,16790.6,NA,0
+Itanhém,Esgotos,Prefeitura Municipal de Itanhém,NA,NA,NA,NA,NA,NA,0,NA,0,0
+Itarantim,Água,Empresa Baiana de Águas e Saneamento S.A.,5.28,5.28,NA,78.73,NA,NA,116.59,328101.97,NA,0
+Itarantim,Esgotos,Prefeitura Municipal de Itarantim,NA,NA,NA,NA,NA,NA,181.82,NA,215000,300000
+Itiruçu,Água,Empresa Baiana de Águas e Saneamento S.A.,4.07,4.85,NA,74.4,NA,NA,71.83,207854.88,NA,0
+Itiruçu,Esgotos,Prefeitura Municipal de Itiruçu,NA,NA,NA,NA,NA,NA,0,NA,50550,NA
+Jeremoabo,Água,Empresa Baiana de Águas e Saneamento S.A.,4.83,7.27,NA,55.47,NA,NA,117.83,44009.59,NA,0
+Jeremoabo,Esgotos,Prefeitura Municipal de Jeremoabo,NA,NA,NA,NA,NA,NA,0,NA,230000,0
+Lafaiete Coutinho,Água,Empresa Baiana de Águas e Saneamento S.A.,5.03,5.03,NA,68.35,NA,NA,52.01,187580.53,NA,0
+Lafaiete Coutinho,Esgotos,Prefeitura Municipal de Lafaiete Coutinho,NA,NA,NA,NA,NA,NA,0,NA,0,0
+Lajedão,Água,Empresa Baiana de Águas e Saneamento S.A.,4.95,4.95,NA,98.02,NA,NA,70.63,6789.37,NA,0
+Lajedão,Esgotos,Prefeitura Municipal de Lajedão,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Macajuba,Água,Empresa Baiana de Águas e Saneamento S.A.,4.22,4.22,NA,75.23,NA,NA,75.74,689583.61,NA,40398.76
+Macajuba,Esgotos,Prefeitura Municipal de Macajuba,NA,NA,NA,NA,NA,NA,0,NA,50000,0
+Macaúbas,Água,Empresa Baiana de Águas e Saneamento S.A.,4.61,4.61,NA,4.8,NA,NA,64.58,0,NA,0
+Macaúbas,Água,Serviço Autônomo de Água e Esgoto,3.62,3.62,NA,90.86,NA,NA,94.2,177660,0,0
+Mascote,Água,Empresa Baiana de Águas e Saneamento S.A.,4.56,4.56,NA,78.87,NA,NA,84.51,0,NA,0
+Mascote,Esgotos,Prefeitura Municipal de Mascote,NA,NA,NA,NA,NA,NA,272.63,NA,0,0
+Nilo Peçanha,Água,Empresa Baiana de Águas e Saneamento S.A.,5.14,5.14,NA,25.41,NA,NA,112.33,0,NA,0
+Nilo Peçanha,Esgotos,Prefeitura Municipal de Nilo Peçanha,NA,NA,NA,NA,NA,NA,0,NA,14470,0
+Nova Canaã,Água,Empresa Baiana de Águas e Saneamento S.A.,4.79,4.79,NA,44.1,NA,NA,96.64,0,NA,0
+Nova Canaã,Esgotos,Prefeitura Municipal de Nova Canaã,NA,NA,NA,NA,NA,NA,59.63,NA,0,0
+Novo Horizonte,Água,Prefeitura Municipal de Novo Horizonte,NA,NA,NA,100,NA,NA,0,NA,135000,0
+Novo Horizonte,Água,Empresa Baiana de Águas e Saneamento S.A.,NA,NA,NA,23.89,NA,NA,NA,276038.15,NA,0
+Novo Triunfo,Água,Empresa Baiana de Águas e Saneamento S.A.,4.22,4.22,NA,47.48,NA,NA,93.47,0,NA,0
+Novo Triunfo,Esgotos,Prefeitura Municipal de Novo Triunfo,NA,NA,NA,NA,NA,NA,0,NA,147500,0
+Pedrão,Água,Empresa Baiana de Águas e Saneamento S.A.,4.73,4.73,NA,38.54,NA,NA,62.4,0,NA,0
+Pedrão,Esgotos,Prefeitura Municipal de Pedrão,NA,NA,NA,NA,NA,NA,0,NA,0,0
+Pintadas,Água,Empresa Baiana de Águas e Saneamento S.A.,5.12,5.12,NA,71.48,NA,NA,93.39,0,NA,0
+Pintadas,Esgotos,Prefeitura Municipal de Pintadas,NA,NA,NA,NA,NA,NA,0,NA,64773,0
+Rafael Jambeiro,Água,Empresa Baiana de Águas e Saneamento S.A.,4.82,4.82,NA,53.94,NA,NA,71.99,0,NA,0
+Rafael Jambeiro,Esgotos,Prefeitura Municipal de Rafael Jambeiro,NA,NA,NA,NA,NA,NA,0,NA,36575,NA
+Tabocas do Brejo Velho,Água,Prefeitura Municipal de Tabocas do Brejo Velho,0,0,NA,49.42,NA,NA,0,NA,0,0
+Tabocas do Brejo Velho,Água,Empresa Baiana de Águas e Saneamento S.A.,5,5,NA,45.91,NA,NA,92.52,0,NA,0
+Tanhaçu,Água,Empresa Baiana de Águas e Saneamento S.A.,4.56,4.56,NA,53.12,NA,NA,45.01,671645.71,NA,0
+Tanhaçu,Esgotos,Prefeitura Municipal de Tanhaçu,NA,NA,NA,NA,NA,NA,0,NA,70000,NA
+Tapiramutá,Água,Empresa Baiana de Águas e Saneamento S.A.,4.56,4.56,NA,77.41,NA,NA,86.89,509247.14,NA,0
+Tapiramutá,Esgotos,Prefeitura Municipal de Tapiramutá,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Teofilândia,Água,Empresa Baiana de Águas e Saneamento S.A.,4.28,29.22,NA,89.63,NA,NA,75.78,296413.72,NA,0
+Teofilândia,Esgotos,Prefeitura Municipal de Teofilândia,NA,NA,NA,NA,NA,NA,0,NA,0,NA
+Teolândia,Água,Empresa Baiana de Águas e Saneamento S.A.,4.56,4.56,NA,37.38,NA,NA,100.89,0,NA,0
+Teolândia,Esgotos,Prefeitura Municipal de Teolândia,NA,NA,NA,NA,NA,NA,0,NA,132400,0
