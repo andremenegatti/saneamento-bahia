@@ -252,3 +252,253 @@ mapa_tarifa_esgoto <- snis_esgoto %>%
 # Saving
 tmap_save(mapa_tarifa_esgoto,  height = 6, width = 6,
           filename = 'plots/esgoto/mapa-tarifa-media-esgoto.png')
+
+# Histogram: tarifa de esgoto -------------------------------------------------
+histogram_tarifa_esgoto <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = fct_drop(nat_jur_simplified)) %>% 
+  ggplot() +
+  geom_histogram(aes(x = in006_tarifa_media_de_esgoto,
+                     fill = nat_jur_simplified),
+                 bins = 20) +
+  theme(panel.grid = element_blank(),
+        legend.title = element_blank(),
+        legend.position = c(.18, .92)) +
+  scale_fill_manual(values = c('#fed976', '#fb6a4a')) +
+  labs(
+    x = 'Tarifa média do serviço de esgotamento (R$/m3)',
+    y = 'Número de municípios',
+    title = 'Distribuição da tarifa média - Esgoto' 
+    ) ; histogram_tarifa_esgoto
+
+ggsave(plot = histogram_tarifa_esgoto, width = 6, height = 6,
+       filename = 'plots/esgoto/histogram-tarifa-esgoto.png')
+
+
+# Scatterplot: tarifa vs. coleta: single plot ----------------------------
+scatterplot_tarifa_coleta <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot() +
+  geom_point(aes(x = in015_indice_de_coleta_de_esgoto,
+                 y = in006_tarifa_media_de_esgoto,
+                 size = pop, col = nat_jur_simplified),
+             alpha = 0.6) +
+  geom_smooth(aes(x = in015_indice_de_coleta_de_esgoto,
+                  y = in006_tarifa_media_de_esgoto),
+              method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  theme(panel.grid = element_blank(), legend.position = 'bottom',
+        legend.title = element_blank()) +
+  guides(size = FALSE) +
+  labs(
+    x = 'Índice de coleta de esgoto',
+    y = 'Tarifa média de esgoto (R$/m3)',
+    title = 'Relação entre tarifa e índice de coleta de esgoto',
+    subtitle = 'Coleta de esgoto nos municípios baianos',
+    caption =
+      'Fonte: SNIS (2018)\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) ; scatterplot_tarifa_coleta
+
+ggsave(plot = scatterplot_tarifa_coleta, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tarifa-vs-coleta-esgoto.png')
+
+
+# Scatterplot: tarifa vs. tratamento: single plot -----------------------------
+scatterplot_tarifa_tratamento <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot() +
+  geom_point(aes(x = in046_indice_de_esgoto_tratado_referido_a_agua_consumida,
+                 y = in006_tarifa_media_de_esgoto,
+                 size = pop, col = nat_jur_simplified),
+             alpha = 0.6) +
+  geom_smooth(aes(x = in046_indice_de_esgoto_tratado_referido_a_agua_consumida,
+                  y = in006_tarifa_media_de_esgoto),
+              method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  theme(panel.grid = element_blank(), legend.position = 'bottom',
+        legend.title = element_blank()) +
+  guides(size = FALSE) +
+  labs(
+    x = 'Índice de tratamento de esgoto',
+    y = 'Tarifa média de esgoto (R$/m3)',
+    title = 'Relação entre tarifa e índice de tratamento de esgoto',
+    subtitle = 'Tratamento de esgoto nos municípios baianos',
+    caption =
+      'Fonte: SNIS (2018)\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) ; scatterplot_tarifa_tratamento
+
+ggsave(plot = scatterplot_tarifa_tratamento, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tarifa-vs-tratamento-esgoto.png')
+
+
+# Scatterplot: tarifa vs. PIB - single plot  ----------------------------------
+scatterplot_tarifa_pib <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib2017, y = in006_tarifa_media_de_esgoto)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.6) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
+                labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  labs(
+    x = 'PIB em reais (escala logarítmica)',
+    y = 'Tarifa média de esgoto',
+    title = 'Relação entre tarifa e PIB',
+    subtitle = 'Fornecimento de esgoto nos municípios baianos',
+    caption =
+      'Fonte: dados tarifários do SNIS (2018); dados de PIB do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE)  +
+  theme(panel.grid = element_blank(), legend.position = 'bottom',
+        legend.title = element_blank()) ; scatterplot_tarifa_pib
+
+# Saving
+ggsave(plot = scatterplot_tarifa_pib, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tarifa-esgoto-vs-pib.png')
+
+# Scatterplot: tarifa vs. PIB per capita - single plot  -----------------------
+scatterplot_tarifa_pib_per_capita <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib_per_capita2017, y = in006_tarifa_media_de_esgoto)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.5) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5, 25, 50, 100, 250),
+                labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
+  coord_cartesian(xlim = c(5, 250)) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  labs(
+    x = 'PIB per capita em reais (escala logarítmica)',
+    y = 'Tarifa média de esgoto',
+    title = 'Relação entre tarifa e PIB per capita',
+    subtitle = 'Fornecimento de esgoto nos municípios baianos',
+    caption =
+      'Fonte: dados tarifários do SNIS (2018); dados de PIB e população do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE)  +
+  theme(panel.grid = element_blank(), legend.position = 'bottom',
+        legend.title = element_blank()); scatterplot_tarifa_pib_per_capita
+
+# Saving
+ggsave(plot = scatterplot_tarifa_pib_per_capita, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tarifa-esgoto-vs-pib-per-capita.png')
+
+
+# Scatterplot: coleta vs PIB - single plot ------------------------------------
+scatterplot_coleta_pib <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib2017, y = in015_indice_de_coleta_de_esgoto)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.5) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
+                labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
+  coord_cartesian(ylim = c(min(snis_esgoto2$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100)) +
+  scale_color_manual(values = c('#fed976', '#fb6a4a', '#225ea8')) +
+  labs(
+    x = 'PIB em reais (escala logarítmica)',
+    y = 'Índice de coleta de esgoto',
+    title = 'Relação entre índice de coleta de esgoto e PIB',
+    caption =
+      'Fonte: dados de atendimento do SNIS (2018); dados de PIB do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE) +
+  theme(panel.grid = element_blank(), legend.title = element_blank(),
+        legend.position = 'bottom') ; scatterplot_coleta_pib
+
+ggsave(plot = scatterplot_coleta_pib, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-coleta_esgoto-vs-pib.png')
+
+# Scatterplot: coleta vs PIB per capita - single plot --------------------
+scatterplot_coleta_pib_per_capita <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib_per_capita2017, y = in015_indice_de_coleta_de_esgoto)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.5) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5, 25, 50, 100, 250),
+                labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  coord_cartesian(ylim = c(min(snis_esgoto2$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100),
+                  xlim = c(5, 250)) +
+  labs(
+    x = 'PIB per capita em reais (escala logarítmica)',
+    y = 'Índice de coleta de esgoto',
+    title = 'Relação entre índice de coleta de esgoto e PIB per capita',
+    caption =
+      'Fonte: dados de atendimento do SNIS (2018); dados de PIB e população do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE) +
+  theme(panel.grid = element_blank(), legend.title = element_blank(),
+        legend.position = 'bottom') ; scatterplot_coleta_pib_per_capita
+
+ggsave(plot = scatterplot_coleta_pib_per_capita, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-coleta-esgoto-vs-pib-per-capita.png')
+
+# Scatterplot: tratamento vs PIB - single plot --------------------------------
+scatterplot_tratamento_pib <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib2017, y = in046_indice_de_esgoto_tratado_referido_a_agua_consumida)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.5) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
+                labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
+  coord_cartesian(ylim = c(min(snis_esgoto2$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100)) +
+  scale_color_manual(values = c('#fed976', '#fb6a4a', '#225ea8')) +
+  labs(
+    x = 'PIB em reais (escala logarítmica)',
+    y = 'Índice de tratamento de esgoto',
+    title = 'Relação entre índice de tratamento de esgoto e PIB',
+    caption =
+      'Fonte: dados de atendimento do SNIS (2018); dados de PIB do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE) +
+  theme(panel.grid = element_blank(), legend.title = element_blank(),
+        legend.position = 'bottom') ; scatterplot_tratamento_pib
+
+ggsave(plot = scatterplot_tratamento_pib, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tratamento_esgoto-vs-pib.png')
+
+# Scatterplot: tratamento vs PIB per capita - single plot --------------------
+scatterplot_tratamento_pib_per_capita <- snis_esgoto2 %>% 
+  filter(nat_jur_simplified != 'Sem dados') %>% 
+  mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
+  ggplot(aes(x = pib_per_capita2017, y = in046_indice_de_esgoto_tratado_referido_a_agua_consumida)) +
+  geom_point(aes(size = pop, col = nat_jur_simplified),
+             alpha = 0.5) +
+  geom_smooth(method = 'lm', col = 'gray25',
+              fill = 'lightgray', alpha = 0.3) +
+  scale_x_log10(breaks = c(5, 25, 50, 100, 250),
+                labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
+  scale_color_manual(values = c('#fed976', '#ef3b2c')) +
+  coord_cartesian(ylim = c(min(snis_esgoto2$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100),
+                  xlim = c(5, 250)) +
+  labs(
+    x = 'PIB per capita em reais (escala logarítmica)',
+    y = 'Índice de tratamento de esgoto',
+    title = 'Relação entre índice de tratamento de esgoto e PIB per capita',
+    caption =
+      'Fonte: dados de atendimento do SNIS (2018); dados de PIB e população do IBGE (2017).\nNota: o tamanho dos pontos é proporcional à população dos municípios.'
+  ) +
+  guides(size = FALSE) +
+  theme(panel.grid = element_blank(), legend.title = element_blank(),
+        legend.position = 'bottom') ; scatterplot_tratamento_pib_per_capita
+
+ggsave(plot = scatterplot_tratamento_pib_per_capita, width = 6, height = 6,
+       filename = 'plots/esgoto/scatterplot-tratamento-esgoto-vs-pib-per-capita.png')
