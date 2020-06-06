@@ -107,6 +107,7 @@ snis_2prestadores <- snis4 %>%
     fn058_investimentos_totais_realizados_pelo_estado =
       sum(fn058_investimentos_totais_realizados_pelo_estado,
           na.rm = TRUE),
+    # Financial performance is the average of both providers'scores
     in012_indicador_de_desempenho_financeiro = 
       mean(in012_indicador_de_desempenho_financeiro,
            na.rm = TRUE)
