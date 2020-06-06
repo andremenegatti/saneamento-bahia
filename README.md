@@ -1,2 +1,2 @@
 # saneamento-bahia
-Trabalho sobre saneamento na Bahia, coordenado pelo Prof. Rudinei Toneto Junior (FEA-RP/USP)
+Análise descritiva dos serviços de saneamento básico nos municípios bahianos, desenvolvida a partir de dados do SNIS, no contexto de atividades de pesquisa do CEPER/FEA-RP/USP, sob coordenação do Prof. Rudinei Toneto Junior.

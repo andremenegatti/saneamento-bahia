@@ -191,4 +191,4 @@ snis6 <- snis5 %>%
   left_join(snis_inv %>% select(codigo_municipio, tipo_servico, inv_per_capita),
             by = c('codigo_municipio', 'tipo_servico'))
 
-
+saveRDS(snis6, 'data/snis-bahia.rds')
