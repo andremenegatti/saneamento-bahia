@@ -9,9 +9,9 @@ theme_set(custom_theme())
 polygons_municipios_bahia <- readRDS('data/polygons_municipios_bahia.rds')
 snis <- readRDS('data/snis-bahia.rds')
 
-snis_agua <- snis %>% filter(tipo_servico != 'Esgotos') 
+# Data wrangling --------------------------------------------------------------
+snis_agua <- snis %>% filter(tipo_servico != 'Esgotos')
 
-# Mapa: tipo de prestador -----------------------------------------------------
 snis_agua2 <- snis_agua %>% 
   right_join(polygons_municipios_bahia %>% st_drop_geometry(),
              by = 'codigo_municipio') %>% 
@@ -35,11 +35,12 @@ snis_agua2 <- snis_agua2 %>%
     str_detect(nat_jur_simplified2, 'municipal') ~ 'Adm. pública municipal'
   ) %>% fct_relevel('EMBASA', 'Adm. pública municipal'))
 
-
+# Mapa: tipo de prestador -----------------------------------------------------
 mapa_agua_tipo <- snis_agua2 %>% 
   mutate(nat_jur_simplified2 = 
-           fct_relevel(nat_jur_simplified2, 'EMBASA', 'EMBASA + Prefeitura', 'Prefeitura municipal',
-                       'Autarquia municipal', 'Empresa pública municipal')) %>% 
+           fct_relevel(nat_jur_simplified2, 'EMBASA', 'EMBASA + Prefeitura',
+                       'Prefeitura municipal', 'Autarquia municipal',
+                       'Empresa pública municipal')) %>% 
   rename(`Tipo de prestador` = nat_jur_simplified2) %>% 
   add_geometry_municipios() %>% 
   tm_shape() +
@@ -68,14 +69,28 @@ snis_agua2 %>%
   write_csv('data/nat_jur_prestadores.csv')
 
 # Histograma: indice atendimento de agua --------------------------------------
+mediana <- snis_agua2$in055_indice_de_atendimento_total_de_agua %>% 
+  median(na.rm = TRUE)
+mediana_height <- 37
+
 hist_atend_agua <- snis_agua2 %>% 
   ggplot() +
   geom_histogram(aes(x = in055_indice_de_atendimento_total_de_agua,
                      fill = nat_jur_simplified),
                  bins = 30) +
+  geom_path(
+    data = tibble(x = rep(mediana, 2),y = c(0, mediana_height)),
+    mapping = aes(x = x, y = y), linetype = 'dotted', alpha = .8,
+  ) +
+  geom_label(
+    x = mediana, y = mediana_height, color = 'gray15', fill = 'gray97',
+    label = str_c('Mediana:\n', round(mediana, 1)) %>% 
+      str_replace('\\.', ','),
+    family = 'serif', size = 3
+  ) +
   theme(panel.grid = element_blank(),
         legend.title = element_blank(),
-        legend.position = 'bottom') +
+        legend.position = c(.175, .9)) +
   scale_fill_manual(values = c('#fed976', '#ef3b2c')) +
   labs(
     x = 'Índice de atendimento total de água',
@@ -84,7 +99,7 @@ hist_atend_agua <- snis_agua2 %>%
   ) ; hist_atend_agua
 
 # Saving
-ggsave(plot = hist_atend_agua, width = 6, height = 6,
+ggsave(plot = hist_atend_agua, width = 6, height = 5,
        filename = 'plots/agua/histogram-indice-atendimento-agua.png')
 
 # Mapa: índice de atendimento -------------------------------------------------
@@ -100,13 +115,13 @@ mapa_atendimento_agua <- snis_agua2 %>%
   ) +
   tm_fill(
     'Índice de atendimento',
-    style = 'fixed',
-    breaks = c(6, 50, 65, 75, 90, 100),
-    palette = c('#fee0d2', '#c6dbef', '#6baed6',
-                '#4292c6',  '#08519c', "#08306B"),
-    # palette = 'Blues',
-    # style = 'quantile',
-    # n = 5,
+    # style = 'fixed',
+    # breaks = c(6, 50, 65, 75, 90, 100),
+    # palette = c('#fee0d2', '#c6dbef', '#6baed6',
+    #             '#4292c6',  '#08519c', "#08306B"),
+    palette = 'Blues',
+    style = 'quantile',
+    n = 5,
     alpha = 1,
     id = "municipio_clean",
     textNA = "Sem dados",
@@ -152,7 +167,8 @@ tmap_save(mapa_tarifa_agua,  height = 6, width = 6,
           filename = 'plots/agua/mapa-tarifa-media-agua.png')
 
 snis_agua2 %>% 
-  select(municipio_clean, tipo_servico, sigla_prestador, agua_embasa_e_prefeitura, in005_tarifa_media_de_agua) %>% 
+  select(municipio_clean, tipo_servico, sigla_prestador,
+         agua_embasa_e_prefeitura, in005_tarifa_media_de_agua) %>% 
   arrange(desc(in005_tarifa_media_de_agua)) %>% head(20)
 
 # Mapa: investimento per capita -----------------------------------------------
@@ -168,10 +184,13 @@ mapa_investimento_per_capita <- snis_agua2 %>%
   ) +
   tm_fill(
     'Inv. per capita (R$)',
-    palette = c('#fee0d2', '#f7fbff', '#c6dbef', '#6baed6',
-                '#4292c6',  '#08519c', "#08306B"),
     style = 'fixed',
-    breaks = c(0, 1, 5, 25, 50, 150, 500, 2300),
+    # palette = c('#f7fbff', '#c6dbef', '#6baed6',
+    #             '#4292c6',  '#08519c', "#08306B"),
+    # breaks = c(0, 5, 25, 50, 150, 500, 2300),
+    palette = c('#f7fbff', '#c6dbef',
+                '#4292c6',  '#08519c', "#08306B"),
+    breaks = c(0, 5, 50, 150, 500, 2300),
     alpha = 1,
     id = "municipio_clean",
     textNA = "Sem dados",
@@ -440,3 +459,69 @@ scatterplot_atendimento_pib_per_capita <- snis_agua2 %>%
 
 ggsave(plot = scatterplot_atendimento_pib_per_capita, width = 6, height = 6,
        filename = 'plots/agua/scatterplot-atendimento-agua-vs-pib-per-capita.png')
+
+
+# Histograma: indice perdas ---------------------------------------------------
+perda_mediana <- snis_agua2$in013_indice_de_perdas_faturamento %>%
+  median(na.rm = TRUE)
+mediana_height <- 35
+
+hist_perdas_agua <- snis_agua2 %>% 
+  ggplot() +
+  geom_histogram(aes(x = in013_indice_de_perdas_faturamento,
+                     fill = nat_jur_simplified),
+                 bins = 20) +
+  geom_path(
+    data = tibble(x = rep(perda_mediana, 2), y = c(0, mediana_height)),
+    mapping = aes(x = x, y = y), linetype = 'dotted', alpha = .8,
+  ) +
+  geom_label(
+    x = perda_mediana, y = mediana_height, color = 'gray15', fill = 'gray98',
+    label = str_c('Mediana:\n', round(perda_mediana, 1)) %>% 
+      str_replace('\\.', ','),
+    family = 'serif', size = 3
+  ) +
+  theme(panel.grid = element_blank(),
+        legend.title = element_blank(),
+        legend.position = c(.82, .9)) +
+  scale_fill_manual(values = c('#fed976', '#ef3b2c')) +
+  scale_x_continuous(breaks = seq(-20, 100, 20)) +
+  labs(
+    x = 'Índice de perdas de faturamento',
+    y = 'Número de municípios',
+    title = 'Distribuição do índice de perdas de faturamento de água'
+  ) ; hist_perdas_agua
+
+# Saving
+ggsave(plot = hist_perdas_agua, width = 6, height = 5,
+       filename = 'plots/agua/histogram-indice-perdas-faturamento.png')
+
+
+# Mapa: índice de perdas ------------------------------------------------------
+mapa_perdas_agua <- snis_agua2 %>% 
+  add_geometry_municipios() %>% 
+  rename(`Índice de perdas` =
+           in013_indice_de_perdas_faturamento) %>% 
+  tm_shape() +
+  tm_style(
+    "beaver",
+    legend.format = list(fun = function(x) str_c(round(x), '%'),
+                         text.separator = " a ")
+  ) +
+  tm_fill(
+    'Índice de perdas',
+    style = 'quantile',
+    palette = 'Blues',
+    n = 5,
+    alpha = 1,
+    id = "municipio_clean",
+    textNA = "Sem dados",
+    colorNA = '#fff7bc'
+  ) +
+  tm_layout(main.title = 
+              'Índice de perdas de faturamento (água)') +
+  custom_map_settings ; mapa_perdas_agua
+
+# Saving
+tmap_save(mapa_perdas_agua, height = 6, width = 6,
+          filename = 'plots/agua/mapa-perdas-faturamento.png')

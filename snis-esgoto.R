@@ -254,6 +254,10 @@ tmap_save(mapa_tarifa_esgoto,  height = 6, width = 6,
           filename = 'plots/esgoto/mapa-tarifa-media-esgoto.png')
 
 # Histogram: tarifa de esgoto -------------------------------------------------
+mediana <- snis_esgoto2$in006_tarifa_media_de_esgoto %>% 
+  median(na.rm = TRUE)
+mediana_height <- 12
+
 histogram_tarifa_esgoto <- snis_esgoto2 %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = fct_drop(nat_jur_simplified)) %>% 
@@ -261,9 +265,19 @@ histogram_tarifa_esgoto <- snis_esgoto2 %>%
   geom_histogram(aes(x = in006_tarifa_media_de_esgoto,
                      fill = nat_jur_simplified),
                  bins = 20) +
+  geom_path(
+    data = tibble(x = rep(mediana, 2),y = c(0, mediana_height)),
+    mapping = aes(x = x, y = y), linetype = 'dotted', alpha = .8,
+  ) +
+  geom_label(
+    x = mediana, y = mediana_height, color = 'gray15', fill = 'gray98',
+    label = str_c('Mediana:\n', round(mediana, 1)) %>% 
+      str_replace('\\.', ','),
+    family = 'serif', size = 3
+  ) +
   theme(panel.grid = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(.18, .92)) +
+        legend.position = c(.18, .90)) +
   scale_fill_manual(values = c('#fed976', '#fb6a4a')) +
   labs(
     x = 'Tarifa média do serviço de esgotamento (R$/m3)',
@@ -271,7 +285,7 @@ histogram_tarifa_esgoto <- snis_esgoto2 %>%
     title = 'Distribuição da tarifa média - Esgoto' 
     ) ; histogram_tarifa_esgoto
 
-ggsave(plot = histogram_tarifa_esgoto, width = 6, height = 6,
+ggsave(plot = histogram_tarifa_esgoto, width = 6, height = 5,
        filename = 'plots/esgoto/histogram-tarifa-esgoto.png')
 
 
