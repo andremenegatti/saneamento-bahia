@@ -1,6 +1,10 @@
 # Large files
 data/mapa_brasil.rds
 
+# Reports
+reports/*.pdf
+reports/*.html
+
 # History files
 .Rhistory
 .Rapp.history
