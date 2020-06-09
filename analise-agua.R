@@ -7,36 +7,10 @@ theme_set(custom_theme())
 
 # Loading datasets ------------------------------------------------------------
 polygons_municipios_bahia <- readRDS('data/polygons_municipios_bahia.rds')
-snis <- readRDS('data/snis-bahia.rds')
-
-# Data wrangling --------------------------------------------------------------
-snis_agua <- snis %>% filter(tipo_servico != 'Esgotos')
-
-snis_agua2 <- snis_agua %>% 
-  right_join(polygons_municipios_bahia %>% st_drop_geometry(),
-             by = 'codigo_municipio') %>% 
-  mutate(
-    nat_jur_simplified2 = case_when(
-      sigla_prestador == 'EMBASA' ~ 'EMBASA',
-      natureza_juridica == 'Autarquia' ~ 'Autarquia municipal',
-      natureza_juridica == 'Administração pública direta' ~ 'Prefeitura municipal',
-      natureza_juridica == 'Empresa pública' ~ 'Empresa pública municipal',
-      natureza_juridica == 'Sem dados' ~ 'Sem dados',
-      is.na(natureza_juridica) ~ 'Sem dados',
-      municipio == 'Itabuna' ~ 'Empresa pública municipal')
-    )
-
-snis_agua2 <- snis_agua2 %>% 
-  mutate(nat_jur_simplified2 = 
-           ifelse(agua_embasa_e_prefeitura,
-                  'EMBASA + Prefeitura', nat_jur_simplified2)) %>% 
-  mutate(nat_jur_simplified = case_when(
-    str_detect(nat_jur_simplified2, 'EMBASA') ~ 'EMBASA',
-    str_detect(nat_jur_simplified2, 'municipal') ~ 'Adm. pública municipal'
-  ) %>% fct_relevel('EMBASA', 'Adm. pública municipal'))
+snis_agua <- readRDS('data/snis-agua-clean.rds')
 
 # Mapa: tipo de prestador -----------------------------------------------------
-mapa_agua_tipo <- snis_agua2 %>% 
+mapa_agua_tipo <- snis_agua %>% 
   mutate(nat_jur_simplified2 = 
            fct_relevel(nat_jur_simplified2, 'EMBASA', 'EMBASA + Prefeitura',
                        'Prefeitura municipal', 'Autarquia municipal',
@@ -60,7 +34,7 @@ tmap_save(mapa_agua_tipo, height = 6, width = 6,
           filename = 'plots/agua/mapa-tipo-prestador-agua.png')
 
 # Tabela de frequencia: tipo de prestador  ------------------------------------
-snis_agua2 %>% 
+snis_agua %>% 
   count(nat_jur_simplified2, .drop = FALSE) %>% 
   arrange(desc(n)) %>% 
   mutate(nat_jur_simplified2 = ifelse(is.na(nat_jur_simplified2),
@@ -69,11 +43,11 @@ snis_agua2 %>%
   write_csv('data/nat_jur_prestadores.csv')
 
 # Histograma: indice atendimento de agua --------------------------------------
-mediana <- snis_agua2$in055_indice_de_atendimento_total_de_agua %>% 
+mediana <- snis_agua$in055_indice_de_atendimento_total_de_agua %>% 
   median(na.rm = TRUE)
 mediana_height <- 37
 
-hist_atend_agua <- snis_agua2 %>% 
+hist_atend_agua <- snis_agua %>% 
   ggplot() +
   geom_histogram(aes(x = in055_indice_de_atendimento_total_de_agua,
                      fill = nat_jur_simplified),
@@ -103,7 +77,7 @@ ggsave(plot = hist_atend_agua, width = 6, height = 5,
        filename = 'plots/agua/histogram-indice-atendimento-agua.png')
 
 # Mapa: índice de atendimento -------------------------------------------------
-mapa_atendimento_agua <- snis_agua2 %>% 
+mapa_atendimento_agua <- snis_agua %>% 
   add_geometry_municipios() %>% 
   rename(`Índice de atendimento` =
            in055_indice_de_atendimento_total_de_agua) %>% 
@@ -136,7 +110,7 @@ tmap_save(mapa_atendimento_agua, height = 6, width = 6,
           filename = 'plots/agua/mapa-atendimento-agua.png')
 
 # Mapa: tarifa de água --------------------------------------------------------
-mapa_tarifa_agua <- snis_agua2 %>% 
+mapa_tarifa_agua <- snis_agua %>% 
   add_geometry_municipios() %>% 
   rename(`Tarifa média (R$/m3)` =
            in005_tarifa_media_de_agua) %>% 
@@ -166,13 +140,13 @@ mapa_tarifa_agua <- snis_agua2 %>%
 tmap_save(mapa_tarifa_agua,  height = 6, width = 6,
           filename = 'plots/agua/mapa-tarifa-media-agua.png')
 
-snis_agua2 %>% 
+snis_agua %>% 
   select(municipio_clean, tipo_servico, sigla_prestador,
          agua_embasa_e_prefeitura, in005_tarifa_media_de_agua) %>% 
   arrange(desc(in005_tarifa_media_de_agua)) %>% head(20)
 
 # Mapa: investimento per capita -----------------------------------------------
-mapa_investimento_per_capita <- snis_agua2 %>% 
+mapa_investimento_per_capita <- snis_agua %>% 
   rename(`Inv. per capita (R$)` = inv_per_capita) %>% 
   add_geometry_municipios() %>% 
   tm_shape() +
@@ -205,7 +179,7 @@ tmap_save(mapa_investimento_per_capita, width = 6, height = 6,
           filename = 'plots/mapa-investimento-total-per-capita.png')
 
 # Mapa: indicador de desempenho financeiro ------------------------------------
-mapa_desempenho_financeiro <- snis_agua2 %>% 
+mapa_desempenho_financeiro <- snis_agua %>% 
   rename(`Ind. Desemp. Financeiro` =
            in012_indicador_de_desempenho_financeiro) %>% 
   add_geometry_municipios() %>% 
@@ -237,7 +211,7 @@ tmap_save(mapa_desempenho_financeiro, width = 6, height = 6,
 
 # Boxplot: atendimento água ---------------------------------------------------
 # Data wrangling
-snis_boxplot_atendimento <- snis_agua2 %>% 
+snis_boxplot_atendimento <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified))
 
@@ -278,7 +252,7 @@ ggsave(plot = boxplot_atendimento_agua, width = 5, height = 4.5,
 
 # Boxplot: tarifa água --------------------------------------------------------
 # Data wrangling
-snis_boxplot_tarifa <- snis_agua2 %>% 
+snis_boxplot_tarifa <- snis_agua %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified))
 
@@ -319,7 +293,7 @@ ggsave(plot = boxplot_tarifa_agua, width = 5, height = 4.5,
 
 
 # Scatterplot: tarifa vs. atendimento: single plot ----------------------------
-scatterplot_tarifa_atendimento <- snis_agua2 %>% 
+scatterplot_tarifa_atendimento <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot() +
@@ -348,7 +322,7 @@ ggsave(plot = scatterplot_tarifa_atendimento, width = 6, height = 6,
        filename = 'plots/agua/scatterplot-tarifa-vs-atendimento-agua.png')
 
 # Scatterplot: tarifa vs. PIB - single plot  ----------------------------------
-scatterplot_tarifa_pib <- snis_agua2 %>% 
+scatterplot_tarifa_pib <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib2017, y = in005_tarifa_media_de_agua)) +
@@ -376,7 +350,7 @@ ggsave(plot = scatterplot_tarifa_pib, width = 6, height = 6,
        filename = 'plots/agua/scatterplot-tarifa-agua-vs-pib.png')
 
 # Scatterplot: tarifa vs. PIB per capita - single plot  -----------------------
-scatterplot_tarifa_pib_per_capita <- snis_agua2 %>% 
+scatterplot_tarifa_pib_per_capita <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib_per_capita2017, y = in005_tarifa_media_de_agua)) +
@@ -405,7 +379,7 @@ ggsave(plot = scatterplot_tarifa_pib_per_capita, width = 6, height = 6,
 
 
 # Scatterplot: atendimento vs PIB - single plot -------------------------------
-scatterplot_atendimento_pib <- snis_agua2 %>% 
+scatterplot_atendimento_pib <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib2017, y = in055_indice_de_atendimento_total_de_agua)) +
@@ -415,7 +389,7 @@ scatterplot_atendimento_pib <- snis_agua2 %>%
               fill = 'lightgray', alpha = 0.3) +
   scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
                 labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
-  coord_cartesian(ylim = c(min(snis_agua2$in055_indice_de_atendimento_total_de_agua, na.rm = TRUE), 100)) +
+  coord_cartesian(ylim = c(min(snis_agua$in055_indice_de_atendimento_total_de_agua, na.rm = TRUE), 100)) +
   scale_color_manual(values = c('#fed976', '#fb6a4a', '#225ea8')) +
   labs(
     x = 'PIB em reais (escala logarítmica)',
@@ -433,7 +407,7 @@ ggsave(plot = scatterplot_atendimento_pib, width = 6, height = 6,
        filename = 'plots/agua/scatterplot-atendimento-agua-vs-pib.png')
 
 # Scatterplot: atendimento vs PIB per capita - single plot --------------------
-scatterplot_atendimento_pib_per_capita <- snis_agua2 %>% 
+scatterplot_atendimento_pib_per_capita <- snis_agua %>% 
   filter(!is.na(nat_jur_simplified)) %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib_per_capita2017, y = in055_indice_de_atendimento_total_de_agua)) +
@@ -444,7 +418,7 @@ scatterplot_atendimento_pib_per_capita <- snis_agua2 %>%
   scale_x_log10(breaks = c(5, 25, 50, 100, 250),
                 labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
   scale_color_manual(values = c('#fed976', '#ef3b2c')) +
-  coord_cartesian(ylim = c(min(snis_agua2$in055_indice_de_atendimento_total_de_agua, na.rm = TRUE), 100)) +
+  coord_cartesian(ylim = c(min(snis_agua$in055_indice_de_atendimento_total_de_agua, na.rm = TRUE), 100)) +
   labs(
     x = 'PIB per capita em reais (escala logarítmica)',
     y = 'Índice de atendimento',
@@ -462,11 +436,11 @@ ggsave(plot = scatterplot_atendimento_pib_per_capita, width = 6, height = 6,
 
 
 # Histograma: indice perdas ---------------------------------------------------
-perda_mediana <- snis_agua2$in013_indice_de_perdas_faturamento %>%
+perda_mediana <- snis_agua$in013_indice_de_perdas_faturamento %>%
   median(na.rm = TRUE)
 mediana_height <- 35
 
-hist_perdas_agua <- snis_agua2 %>% 
+hist_perdas_agua <- snis_agua %>% 
   ggplot() +
   geom_histogram(aes(x = in013_indice_de_perdas_faturamento,
                      fill = nat_jur_simplified),
@@ -498,7 +472,7 @@ ggsave(plot = hist_perdas_agua, width = 6, height = 5,
 
 
 # Mapa: índice de perdas ------------------------------------------------------
-mapa_perdas_agua <- snis_agua2 %>% 
+mapa_perdas_agua <- snis_agua %>% 
   add_geometry_municipios() %>% 
   rename(`Índice de perdas` =
            in013_indice_de_perdas_faturamento) %>% 

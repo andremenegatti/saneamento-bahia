@@ -6,51 +6,22 @@ source('helpers.R')
 theme_set(custom_theme())
 
 # Loading datasets ------------------------------------------------------------
+snis_esgoto <- readRDS('data/snis-esgoto-clean.rds')
 polygons_municipios_bahia <- readRDS('data/polygons_municipios_bahia.rds')
-snis <- readRDS('data/snis-bahia.rds')
-
-snis_esgoto <- snis %>% filter(tipo_servico != 'Água') 
+#snis <- readRDS('data/snis-bahia.rds')
+#snis_esgoto <- snis %>% filter(tipo_servico != 'Água') 
 
 # Checking missingness --------------------------------------------------------
-library(naniar)
-library(visdat)
-
 snis_esgoto %>%
-  right_join(polygons_municipios_bahia %>% st_drop_geometry(),
-             by = 'codigo_municipio') %>% 
   select(municipio_clean,
          tarifa_esgoto = in006_tarifa_media_de_esgoto,
          coleta = in015_indice_de_coleta_de_esgoto,
          tratamento = in046_indice_de_esgoto_tratado_referido_a_agua_consumida) %>% 
   arrange(tarifa_esgoto, coleta) %>% 
-  vis_miss()
-
-# Data wrangling: type of provider --------------------------------------------
-snis_esgoto2 <- snis_esgoto %>% 
-  filter(!(municipio == 'Araci' & sigla_prestador == 'PMA')) %>% 
-  right_join(polygons_municipios_bahia %>% st_drop_geometry(),
-             by = 'codigo_municipio') %>% 
-  mutate(
-    nat_jur_simplified2 = case_when(
-      municipio == 'Araci' ~ 'EMBASA + Prefeitura',
-      sigla_prestador == 'EMBASA' ~ 'EMBASA',
-      natureza_juridica == 'Autarquia' ~ 'Autarquia municipal',
-      natureza_juridica == 'Administração pública direta' ~ 'Prefeitura municipal',
-      natureza_juridica == 'Empresa pública' ~ 'Empresa pública municipal',
-      natureza_juridica == 'Sem dados' ~ 'Sem dados',
-      is.na(natureza_juridica) ~ 'Sem dados',
-      municipio == 'Itabuna' ~ 'Empresa pública municipal',
-      is.na(municipio) ~ 'Sem dados'
-    )
-  ) %>% 
-  mutate(nat_jur_simplified = case_when(
-    str_detect(nat_jur_simplified2, 'EMBASA') ~ 'EMBASA',
-    str_detect(nat_jur_simplified2, 'municipal') ~ 'Adm. pública municipal',
-    is.na(municipio) ~ 'Sem dados'
-  ) %>% fct_relevel('EMBASA', 'Adm. pública municipal', 'Sem dados'))
+  naniar::vis_miss()
 
 # Mapa: natureza jurídica -----------------------------------------------------
-mapa_esgoto_tipo <- snis_esgoto2 %>% 
+mapa_esgoto_tipo <- snis_esgoto %>% 
   filter(nat_jur_simplified2 != 'Sem dados') %>% 
   mutate(nat_jur_simplified2 = fct_drop(nat_jur_simplified2) %>% 
            fct_relevel('EMBASA', 'EMBASA + Prefeitura', 'Prefeitura municipal',
@@ -74,9 +45,8 @@ mapa_esgoto_tipo <- snis_esgoto2 %>%
 tmap_save(mapa_esgoto_tipo, height = 6, width = 6,
           filename = 'plots/esgoto/mapa-tipo-prestador-esgoto.png')
 
-
 # Tabela de frequencia: tipo de prestador  ------------------------------------
-snis_esgoto2 %>% 
+snis_esgoto %>% 
   count(nat_jur_simplified2, .drop = FALSE) %>% 
   arrange(desc(n)) %>% 
   mutate(nat_jur_simplified2 = ifelse(is.na(nat_jur_simplified2),
@@ -84,9 +54,8 @@ snis_esgoto2 %>%
   rename(tipo_prestador = nat_jur_simplified2) %T>% print() %>% 
   write_csv('data/nat_jur_prestadores_esgoto.csv')
 
-
 # Mapa: índice de coleta de esgoto --------------------------------------------
-mapa_coleta_esgoto <- snis_esgoto2 %>% 
+mapa_coleta_esgoto <- snis_esgoto %>% 
   add_geometry_municipios() %>% 
   rename(`Índice de coleta` =
            in015_indice_de_coleta_de_esgoto) %>% 
@@ -115,7 +84,7 @@ tmap_save(mapa_coleta_esgoto, height = 6, width = 6,
           filename = 'plots/esgoto/mapa-coleta-esgoto.png')
 
 # Barplot: indice de coleta de esgoto --------------------------------------
-coleta_binned <- snis_esgoto2 %>% 
+coleta_binned <- snis_esgoto %>% 
   select(nat_jur_simplified,
          coleta = in015_indice_de_coleta_de_esgoto) %>% 
   filter(!is.na(coleta)) %>% 
@@ -154,7 +123,7 @@ ggsave(plot = barplot_coleta_esgoto, width = 6, height = 6,
        filename = 'plots/esgoto/barplot-indice-coleta-esgoto.png')
 
 # Mapa: índice de tratamento de esgoto ----------------------------------------
-mapa_tratamento_esgoto <-  snis_esgoto2 %>% 
+mapa_tratamento_esgoto <-  snis_esgoto %>% 
   add_geometry_municipios() %>% 
   rename(`Índice de tratamento` =
            in046_indice_de_esgoto_tratado_referido_a_agua_consumida) %>% 
@@ -183,7 +152,7 @@ tmap_save(mapa_tratamento_esgoto, height = 6, width = 6,
           filename = 'plots/esgoto/mapa-tratamento-esgoto.png')
 
 # Barplot: indice de tratamento de esgoto --------------------------------------
-trat_binned <- snis_esgoto2 %>% 
+trat_binned <- snis_esgoto %>% 
   select(nat_jur_simplified,
          trat = in046_indice_de_esgoto_tratado_referido_a_agua_consumida) %>% 
   filter(!is.na(trat)) %>% 
@@ -254,11 +223,11 @@ tmap_save(mapa_tarifa_esgoto,  height = 6, width = 6,
           filename = 'plots/esgoto/mapa-tarifa-media-esgoto.png')
 
 # Histogram: tarifa de esgoto -------------------------------------------------
-mediana <- snis_esgoto2$in006_tarifa_media_de_esgoto %>% 
+mediana <- snis_esgoto$in006_tarifa_media_de_esgoto %>% 
   median(na.rm = TRUE)
 mediana_height <- 12
 
-histogram_tarifa_esgoto <- snis_esgoto2 %>% 
+histogram_tarifa_esgoto <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = fct_drop(nat_jur_simplified)) %>% 
   ggplot() +
@@ -290,7 +259,7 @@ ggsave(plot = histogram_tarifa_esgoto, width = 6, height = 5,
 
 
 # Scatterplot: tarifa vs. coleta: single plot ----------------------------
-scatterplot_tarifa_coleta <- snis_esgoto2 %>% 
+scatterplot_tarifa_coleta <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot() +
@@ -320,7 +289,7 @@ ggsave(plot = scatterplot_tarifa_coleta, width = 6, height = 6,
 
 
 # Scatterplot: tarifa vs. tratamento: single plot -----------------------------
-scatterplot_tarifa_tratamento <- snis_esgoto2 %>% 
+scatterplot_tarifa_tratamento <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot() +
@@ -350,7 +319,7 @@ ggsave(plot = scatterplot_tarifa_tratamento, width = 6, height = 6,
 
 
 # Scatterplot: tarifa vs. PIB - single plot  ----------------------------------
-scatterplot_tarifa_pib <- snis_esgoto2 %>% 
+scatterplot_tarifa_pib <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib2017, y = in006_tarifa_media_de_esgoto)) +
@@ -378,7 +347,7 @@ ggsave(plot = scatterplot_tarifa_pib, width = 6, height = 6,
        filename = 'plots/esgoto/scatterplot-tarifa-esgoto-vs-pib.png')
 
 # Scatterplot: tarifa vs. PIB per capita - single plot  -----------------------
-scatterplot_tarifa_pib_per_capita <- snis_esgoto2 %>% 
+scatterplot_tarifa_pib_per_capita <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib_per_capita2017, y = in006_tarifa_media_de_esgoto)) +
@@ -408,7 +377,7 @@ ggsave(plot = scatterplot_tarifa_pib_per_capita, width = 6, height = 6,
 
 
 # Scatterplot: coleta vs PIB - single plot ------------------------------------
-scatterplot_coleta_pib <- snis_esgoto2 %>% 
+scatterplot_coleta_pib <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib2017, y = in015_indice_de_coleta_de_esgoto)) +
@@ -418,7 +387,7 @@ scatterplot_coleta_pib <- snis_esgoto2 %>%
               fill = 'lightgray', alpha = 0.3) +
   scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
                 labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
-  coord_cartesian(ylim = c(min(snis_esgoto2$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100)) +
+  coord_cartesian(ylim = c(min(snis_esgoto$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100)) +
   scale_color_manual(values = c('#fed976', '#fb6a4a', '#225ea8')) +
   labs(
     x = 'PIB em reais (escala logarítmica)',
@@ -435,7 +404,7 @@ ggsave(plot = scatterplot_coleta_pib, width = 6, height = 6,
        filename = 'plots/esgoto/scatterplot-coleta_esgoto-vs-pib.png')
 
 # Scatterplot: coleta vs PIB per capita - single plot --------------------
-scatterplot_coleta_pib_per_capita <- snis_esgoto2 %>% 
+scatterplot_coleta_pib_per_capita <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib_per_capita2017, y = in015_indice_de_coleta_de_esgoto)) +
@@ -446,7 +415,7 @@ scatterplot_coleta_pib_per_capita <- snis_esgoto2 %>%
   scale_x_log10(breaks = c(5, 25, 50, 100, 250),
                 labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
   scale_color_manual(values = c('#fed976', '#ef3b2c')) +
-  coord_cartesian(ylim = c(min(snis_esgoto2$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100),
+  coord_cartesian(ylim = c(min(snis_esgoto$in015_indice_de_coleta_de_esgoto, na.rm = TRUE), 100),
                   xlim = c(5, 250)) +
   labs(
     x = 'PIB per capita em reais (escala logarítmica)',
@@ -463,7 +432,7 @@ ggsave(plot = scatterplot_coleta_pib_per_capita, width = 6, height = 6,
        filename = 'plots/esgoto/scatterplot-coleta-esgoto-vs-pib-per-capita.png')
 
 # Scatterplot: tratamento vs PIB - single plot --------------------------------
-scatterplot_tratamento_pib <- snis_esgoto2 %>% 
+scatterplot_tratamento_pib <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib2017, y = in046_indice_de_esgoto_tratado_referido_a_agua_consumida)) +
@@ -473,7 +442,7 @@ scatterplot_tratamento_pib <- snis_esgoto2 %>%
               fill = 'lightgray', alpha = 0.3) +
   scale_x_log10(breaks = c(5e+4, 1e+5, 1e+6, 1e+7, 5e+7),
                 labels = c('50mi', '100mi', '1bi', '10bi', '50bi')) +
-  coord_cartesian(ylim = c(min(snis_esgoto2$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100)) +
+  coord_cartesian(ylim = c(min(snis_esgoto$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100)) +
   scale_color_manual(values = c('#fed976', '#fb6a4a', '#225ea8')) +
   labs(
     x = 'PIB em reais (escala logarítmica)',
@@ -490,7 +459,7 @@ ggsave(plot = scatterplot_tratamento_pib, width = 6, height = 6,
        filename = 'plots/esgoto/scatterplot-tratamento_esgoto-vs-pib.png')
 
 # Scatterplot: tratamento vs PIB per capita - single plot --------------------
-scatterplot_tratamento_pib_per_capita <- snis_esgoto2 %>% 
+scatterplot_tratamento_pib_per_capita <- snis_esgoto %>% 
   filter(nat_jur_simplified != 'Sem dados') %>% 
   mutate(nat_jur_simplified = droplevels(nat_jur_simplified)) %>% 
   ggplot(aes(x = pib_per_capita2017, y = in046_indice_de_esgoto_tratado_referido_a_agua_consumida)) +
@@ -501,7 +470,7 @@ scatterplot_tratamento_pib_per_capita <- snis_esgoto2 %>%
   scale_x_log10(breaks = c(5, 25, 50, 100, 250),
                 labels = c('5 mil', '25 mil', '50 mil', '100 mil', '250 mil')) +
   scale_color_manual(values = c('#fed976', '#ef3b2c')) +
-  coord_cartesian(ylim = c(min(snis_esgoto2$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100),
+  coord_cartesian(ylim = c(min(snis_esgoto$in046_indice_de_esgoto_tratado_referido_a_agua_consumida, na.rm = TRUE), 100),
                   xlim = c(5, 250)) +
   labs(
     x = 'PIB per capita em reais (escala logarítmica)',

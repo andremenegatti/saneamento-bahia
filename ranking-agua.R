@@ -1,39 +1,9 @@
-library(magrittr)
 library(tidyverse)
-library(sp)
-library(sf)
-source('helpers.R')
+source('helpers/custom_plot_theme.R')
 theme_set(custom_theme())
 
 # Loading datasets ------------------------------------------------------------
-polygons_municipios_bahia <- readRDS('data/polygons_municipios_bahia.rds')
-snis <- readRDS('data/snis-bahia.rds')
-
-# Data wrangling --------------------------------------------------------------
-snis_agua <- snis %>% filter(tipo_servico != 'Esgotos')
-
-snis_agua <- snis_agua %>% 
-  right_join(polygons_municipios_bahia %>% st_drop_geometry(),
-             by = 'codigo_municipio') %>% 
-  mutate(
-    nat_jur_simplified2 = case_when(
-      sigla_prestador == 'EMBASA' ~ 'EMBASA',
-      natureza_juridica == 'Autarquia' ~ 'Autarquia municipal',
-      natureza_juridica == 'Administração pública direta' ~ 'Prefeitura municipal',
-      natureza_juridica == 'Empresa pública' ~ 'Empresa pública municipal',
-      natureza_juridica == 'Sem dados' ~ 'Sem dados',
-      is.na(natureza_juridica) ~ 'Sem dados',
-      municipio == 'Itabuna' ~ 'Empresa pública municipal')
-  )
-
-snis_agua <- snis_agua %>% 
-  mutate(nat_jur_simplified2 = 
-           ifelse(agua_embasa_e_prefeitura,
-                  'EMBASA + Prefeitura', nat_jur_simplified2)) %>% 
-  mutate(nat_jur_simplified = case_when(
-    str_detect(nat_jur_simplified2, 'EMBASA') ~ 'EMBASA',
-    str_detect(nat_jur_simplified2, 'municipal') ~ 'Adm. pública municipal'
-  ) %>% fct_relevel('EMBASA', 'Adm. pública municipal'))
+snis_agua <- readRDS('data/snis-agua-clean.rds')
 
 # Ranking ---------------------------------------------------------------------
 snis_ranking <- snis_agua %>% 
@@ -70,9 +40,12 @@ highlights_agua <- snis_ranking %>%
          tipo_prestador, populacao, atendimento,
          tarifa_agua, perdas, inv_per_capita , desempenho) %>% 
   slice(c(1:10, (nrow(snis_ranking) - 9):(nrow(snis_ranking)))) %>% 
-  mutate_at(.vars = vars(inv_per_capita, desempenho),
-            .funs = partial(round, digits = 2)) %T>% 
-  write.csv(file = 'data/highlights_agua.csv') ; highlights_agua
+  mutate_if(.predicate = is.numeric,
+            .funs = partial(round, digits = 2)) ; highlights_agua
+
+# Persisting highlights (csv and rds files)
+write.csv(highlights_agua, file = 'data/highlights_agua.csv', row.names = FALSE)
+saveRDS(highlights_agua, 'data/highlights_agua.rds')
 
 # Plotting score distribution -------------------------------------------------
 salvador <- snis_ranking %>% filter(municipio == 'Salvador') %>% pull(score)
