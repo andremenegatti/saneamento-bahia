@@ -2,10 +2,12 @@ library(tidyverse)
 source('helpers/custom_plot_theme.R')
 theme_set(custom_theme())
 
-# Reading dataset -------------------------------------------------------------
+# Reading datasets ------------------------------------------------------------
 snis <- readxl::read_excel(
   'data/snis-agregado-embasa-e-outras-serie-temporal.xlsx',
   sheet = 1, range = 'A1:AQ46')
+
+ipca <- readxl::read_excel('data/ipca.xlsx', sheet = 1)
 
 # Data wrangling --------------------------------------------------------------
 snis_clean <- snis %>% 
@@ -38,7 +40,50 @@ snis_clean <- snis %>%
     inv_prestador_esgoto_per_capita = investimento_esgoto_prestador / pop_atendida_esgoto
   ) %>% 
   mutate(sigla_prestador = sigla_prestador %>% 
-           fct_relevel('EMBASA', 'CAGECE', 'COMPESA', 'COPASA', 'SANEPAR'))
+           fct_relevel('EMBASA', 'CAGECE', 'COMPESA', 'COPASA', 'SANEPAR'))  %>% 
+  left_join(ipca, by = c(`Ano de Referência` = 'ano_dezembro'))
+
+
+# Deflating values (reference: december 2018) ---------------------------------
+ind_ref <- ipca %>%
+  filter(ano_dezembro == 2018) %>%
+  pull(numero_indice)
+
+deflacionar <- function(x, ind_ref, ind_periodo) {
+  x * ind_ref / ind_periodo
+}
+
+snis_clean <- snis_clean %>% 
+  mutate(
+    investimentos_totais_agua = 
+      map2_dbl(.x = investimentos_totais_agua,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    investimentos_totais_esgoto = 
+      map2_dbl(.x = investimentos_totais_esgoto,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    investimentos_totais = 
+      map2_dbl(.x = investimentos_totais,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    inv_totais_agua_per_capita = 
+      map2_dbl(.x = inv_totais_agua_per_capita,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    inv_prestador_agua_per_capita = 
+      map2_dbl(.x = inv_prestador_agua_per_capita,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    inv_totais_esgoto_per_capita = 
+      map2_dbl(.x = inv_totais_esgoto_per_capita,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+    inv_prestador_esgoto_per_capita = 
+      map2_dbl(.x = inv_prestador_esgoto_per_capita,
+               .y = numero_indice,
+               .f = ~ deflacionar(x = .x, ind_ref = ind_ref, ind_periodo = .y)),
+  )
 
 # Custom function to draw lineplots -------------------------------------------
 draw_lineplot <-  function(df, x, y, col,
