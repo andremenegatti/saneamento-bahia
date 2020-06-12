@@ -5,7 +5,7 @@ theme_set(custom_theme())
 # Reading datasets ------------------------------------------------------------
 snis <- readxl::read_excel(
   'data/snis-agregado-embasa-e-outras-serie-temporal.xlsx',
-  sheet = 1, range = 'A1:AQ46')
+  sheet = 1, range = 'A1:AR46')
 
 ipca <- readxl::read_excel('data/ipca.xlsx', sheet = 1)
 
@@ -111,6 +111,7 @@ draw_lineplot <-  function(df, x, y, col,
 }
 
 # Plotting --------------------------------------------------------------------
+# Investimento total
 lineplot_inv_bruto <- 
   draw_lineplot(snis_clean, `Ano de Referência`,
                 y = investimentos_totais / 1e+6,
@@ -126,7 +127,7 @@ lineplot_inv_agua <-
 draw_lineplot(snis_clean, `Ano de Referência`,
               y = inv_prestador_agua_per_capita,
               col = sigla_prestador,
-              ylab = 'Investimento per capita em abastecimento de água',
+              ylab = 'Investimento per capita em abastecimento de água (R$)',
               title = 'Evolução do investimento per capita em abastecimento de água')
 
 ggsave(plot = lineplot_inv_agua, width = 7, height = 5,
@@ -137,7 +138,7 @@ lineplot_inv_esgoto <-
   draw_lineplot(df = snis_clean, x = `Ano de Referência`,
                 y = inv_prestador_esgoto_per_capita,
                 col = sigla_prestador,
-                ylab = 'Investimento per capita em esgotamento sanitário',
+                ylab = 'Investimento per capita em esgotamento sanitário (R$)',
                 title = 'Evolução do investimento per capita em esgotamento sanitário')
 
 ggsave(plot = lineplot_inv_esgoto, width = 7, height = 5,
@@ -173,10 +174,10 @@ lineplot_desempenho <-
                 ylab = 'Indicador de desempenho financeiro',
                 title = 'Evolução do indicador de desempenho financeiro')
 
-ggsave(plot = lineplot_total_empregados, width = 7, height = 5,
+ggsave(plot = lineplot_desempenho, width = 7, height = 5,
        filename = 'plots/comparacao-series-embasa/evolucao-desempenho-financeiro-empresas-selecionadas.png')
 
-# Coleta de esgoto
+# Atendimento de água
 lineplot_coleta <- 
   draw_lineplot(df = snis_clean, x = `Ano de Referência`,
                 y = `IN015 - Índice de coleta de esgoto`,
@@ -186,6 +187,17 @@ lineplot_coleta <-
 
 ggsave(plot = lineplot_coleta, width = 7, height = 5,
        filename = 'plots/comparacao-series-embasa/evolucao-coleta-empresas-selecionadas.png')
+
+# Coleta de esgoto
+lineplot_atendimento <- 
+  draw_lineplot(df = snis_clean, x = `Ano de Referência`,
+                y = `IN055 - Índice de atendimento total de água`,
+                col = sigla_prestador,
+                ylab = 'Índice de atendimento de água',
+                title = 'Evolução do índice de atendimento de água')
+
+ggsave(plot = lineplot_atendimento, width = 7, height = 5,
+       filename = 'plots/comparacao-series-embasa/evolucao-atendimento-agua-empresas-selecionadas.png')
 
 # Tratamento de esgoto
 lineplot_tratamento <- 
