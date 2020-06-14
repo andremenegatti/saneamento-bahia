@@ -59,6 +59,10 @@ delegacao_long <- delegacao_agua %>%
 delegacao_long_status <- delegacao_long %>% 
   filter(situacao != 'Atendidos')
 
+# Writing data on disk
+delegacao_long_status %>% 
+  write_csv('data/evolucao-delegacao-prestadores-selecionados.csv')
+
 # Area plot: agua -------------------------------------------------------------
 delegacao_long_status %>% 
   ggplot() +
@@ -70,7 +74,7 @@ delegacao_long_status %>%
     values = c("#377EB8", "#E41A1C", "#4DAF4A"),
     name = 'Situação'
     ) +
-  theme(panel.grid = element_blank(), legend.position = c(.77, .125)) +
+  theme(panel.grid = element_blank(), legend.position = c(.77, .15)) +
   labs(
     x = 'Ano',
     y = 'Número de municípios atendidos (água)',
@@ -79,6 +83,9 @@ delegacao_long_status %>%
   ) +
   facet_wrap(~ sigla_prestador, ncol = 2,
              scales = 'free_y')
+
+ggsave('plots/comparacao-series-embasa/areaplot-delegacao-agua.png',
+       width = 5, height = 7)
 
 # Area plot: esgoto -------------------------------------------------------------
 delegacao_long_status %>% 
@@ -91,12 +98,15 @@ delegacao_long_status %>%
     values = c("#377EB8", "#E41A1C", "#4DAF4A"),
     name = 'Situação'
   ) +
-  theme(panel.grid = element_blank(), legend.position = c(.77, .125)) +
+  theme(panel.grid = element_blank(), legend.position = c(.77, .15)) +
   labs(
     x = 'Ano',
     y = 'Número de municípios atendidos (esgoto)',
-    title = 'Número de municípios atendidos com esgoto',
+    title = 'Número de municípios atendidos com esgotamento',
     subtitle = 'Evolução conforme situação da delegação - Prestadores selecionados'
   ) +
   facet_wrap(~ sigla_prestador, ncol = 2,
              scales = 'free_y')
+
+ggsave('plots/comparacao-series-embasa/areaplot-delegacao-esgoto.png',
+       width = 5, height = 7)
