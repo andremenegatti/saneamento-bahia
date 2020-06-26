@@ -12,8 +12,9 @@ snis2 <- snis %>%
     natureza_juridica,
     pop = pop_tot_populacao_total_do_municipio_do_ano_de_referencia,
     pop_urbana = pop_urb_populacao_urbana_do_municipio_do_ano_de_referencia,
-    starts_with('ag001_'), starts_with('ag026_'),
-    starts_with('es001_'), starts_with('fn_017_'),
+    starts_with('ag001_'), starts_with('ag002_'), starts_with('ag026_'),
+    starts_with('es001_'), starts_with('es002'), starts_with('es026_'),
+    starts_with('fn_017_'),
     # Investimentos prestador de serviços
     starts_with('fn023'), starts_with('fn024'),
     starts_with('fn025'), starts_with('fn033'),
@@ -26,7 +27,8 @@ snis2 <- snis %>%
     # Índices
     starts_with('in003'), contains('_tarifa_media_'),
     starts_with('in012'), starts_with('in013'),
-    starts_with('in015'), starts_with('in016'), starts_with('in022'),
+    starts_with('in015'), starts_with('in016'),
+    starts_with('in022'), starts_with('in023'),
     starts_with('in024'), starts_with('in046'), starts_with('in047'),
     starts_with('in055'), starts_with('in056')
   )
@@ -55,14 +57,14 @@ snis4 <- snis3 %>%
       select(codigo_municipio, pib2017 = pib) %>% 
       mutate(codigo_municipio = as.integer(codigo_municipio)),
     by = 'codigo_municipio'
-    ) %>% 
+  ) %>% 
   left_join(
     readxl::read_excel('data/estimativa-populacao-municipios-2017.xlsx') %>%
       mutate(codigo_municipio = as.numeric(str_extract(Codmun7, '\\d{6}'))) %>% 
       select(codigo_municipio, pop2017) %>% 
       mutate(codigo_municipio = as.integer(codigo_municipio)),
     by = 'codigo_municipio'
-    ) %>% 
+  ) %>% 
   mutate(pib_per_capita2017 = pib2017 / pop2017) # In thousands of BRL
 
 # Dealing with special cases: cities with two service providers ---------------
@@ -75,13 +77,26 @@ mun_2prestadores <- snis4 %>% count(municipio) %>%
 snis4 %>% 
   filter(municipio %in% mun_2prestadores) %>% 
   select(municipio, tipo_servico, prestador,
-         contains('tarifa'), contains('atendimento_total_de_agua'),
+         contains('tarifa'), contains('in023'),
+         contains('atendimento_total_de_agua'),
          contains('coleta'),
          in046_indice_de_esgoto_tratado_referido_a_agua_consumida,
          contains('desempenho_financeiro'),
          contains('investimentos_totais_')) %>% 
   arrange(municipio, tipo_servico) %>% 
-  write_csv('data/snis_2prestadores.csv')
+  write_excel_csv2('data/snis_2prestadores.csv')
+
+# Saving for visual inspection/manual cleaning
+# snis4 %>% 
+#   filter(municipio %in% mun_2prestadores) %>% 
+#   select(municipio, tipo_servico, prestador, pop, pop_urbana,
+#          ag001 = ag001_populacao_total_atendida_com_abastecimento_de_agua,
+#          ag026 = ag026_populacao_urbana_atendida_com_abastecimento_de_agua,
+#          es001 = es001_populacao_total_atendida_com_esgotamento_sanitario,
+#          es026 = es026_populacao_urbana_atendida_com_esgotamento_sanitario,
+#          in055_indice_de_atendimento_total_de_agua) %>% 
+#   arrange(municipio, tipo_servico) %>% 
+#   write_excel_csv2('data/snis_2prestadores_v2.csv')
 
 # The following cities have more than one water provider
 mun_2agua <- 
@@ -110,7 +125,20 @@ snis_2prestadores <- snis4 %>%
     # Financial performance is the average of both providers'scores
     in012_indicador_de_desempenho_financeiro = 
       mean(in012_indicador_de_desempenho_financeiro,
-           na.rm = TRUE)
+           na.rm = TRUE),
+    # AG001, AG026, ES001, ES026: sum of individual providers
+    ag001_populacao_total_atendida_com_abastecimento_de_agua = 
+      sum(ag001_populacao_total_atendida_com_abastecimento_de_agua,
+          na.rm = TRUE),
+    es001_populacao_total_atendida_com_esgotamento_sanitario =
+      sum(es001_populacao_total_atendida_com_esgotamento_sanitario,
+          na.rm = TRUE),
+    ag026_populacao_urbana_atendida_com_abastecimento_de_agua =
+      sum(ag026_populacao_urbana_atendida_com_abastecimento_de_agua,
+          na.rm = TRUE),
+    es026_populacao_urbana_atendida_com_esgotamento_sanitario =
+      sum(es026_populacao_urbana_atendida_com_esgotamento_sanitario,
+          na.rm = TRUE)
   ) %>% 
   ungroup()
 
@@ -124,11 +152,12 @@ snis_1agua_1esgoto <- snis_2prestadores %>%
            in006_tarifa_media_de_esgoto,
            in015_indice_de_coleta_de_esgoto,
            in016_indice_de_tratamento_de_esgoto,
+           in023_indice_de_atendimento_urbano_de_agua,
            in024_indice_de_atendimento_urbano_de_esgoto_referido_aos_municipios_atendidos_com_agua,
            in046_indice_de_esgoto_tratado_referido_a_agua_consumida,
            in047_indice_de_atendimento_urbano_de_esgoto_referido_aos_municipios_atendidos_com_esgoto),
     .funs = function(x) return(NA_real_)
-    )
+  )
 
 # Cities with 2 water providers: aggregating results
 snis_2agua <- snis_2prestadores %>% 
@@ -147,7 +176,7 @@ snis_2agua <- snis_2prestadores %>%
       weighted.mean(in004_tarifa_media_praticada,
                     w = in055_indice_de_atendimento_total_de_agua,
                     na.rm = TRUE)
-    ) %>% 
+  ) %>% 
   # Atendimento: soma dos atendimentos
   mutate(in055_indice_de_atendimento_total_de_agua = 
            sum(in055_indice_de_atendimento_total_de_agua)) %>% 
@@ -156,7 +185,7 @@ snis_2agua <- snis_2prestadores %>%
            ifelse(in055_indice_de_atendimento_total_de_agua > 100,
                   NA_real_, in055_indice_de_atendimento_total_de_agua)) %>% 
   # Leaving only lines corresponding to EMBASA # <------
-  mutate(agua_embasa_e_prefeitura = TRUE) %>% 
+mutate(agua_embasa_e_prefeitura = TRUE) %>% 
   filter(sigla_prestador == 'EMBASA')
 
 # Updating lines in the original dataframe
@@ -189,7 +218,8 @@ snis_inv <- snis5 %>%
 
 # Adding per capita investment feature
 snis6 <- snis5 %>%
-  left_join(snis_inv %>% select(codigo_municipio, tipo_servico, inv_per_capita),
+  left_join(snis_inv %>% select(codigo_municipio,
+                                tipo_servico, inv_per_capita),
             by = c('codigo_municipio', 'tipo_servico'))
 
 saveRDS(snis6, 'data/snis-bahia.rds')
