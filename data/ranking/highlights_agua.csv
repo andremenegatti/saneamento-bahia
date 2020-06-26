@@ -1,0 +1,21 @@
+﻿ranking;municipio;score;tipo_prestador;populacao;atendimento;tarifa_agua;perdas;inv_per_capita;desempenho
+  1;Itapé;75,08;EMBASA; 9830; 92,70; 4,71;22,61;2290,13; 85,47
+  2;Itororó;65,66;Adm. pública municipal;21241; 98,97; 0,79; 0,00;   9,09;117,99
+  3;Luís Eduardo Magalhães;64,52;EMBASA;83557;100,00; 5,07;18,02;  68,00;164,80
+  4;Sobradinho;64,24;Adm. pública municipal;23713;100,00; 1,31;-5,08;   0,00; 94,20
+  5;Dom Basílio;63,42;Adm. pública municipal;12604; 78,02; 2,15; 1,20; 150,06;139,26
+  6;Itaberaba;62,97;EMBASA;66806;100,00; 5,51;18,49; 624,23; 94,95
+  7;Mascote;62,89;EMBASA;14728; 78,87; 4,56; 8,19;   0,00;178,57
+  8;Dom Macedo Costa;62,02;EMBASA; 4212; 98,79; 4,12;19,69; 574,06; 83,39
+  9;Nova Fátima;61,41;EMBASA; 8119;100,00; 4,68;-3,23;   0,00; 91,21
+ 10;Igaporã;61,09;Adm. pública municipal;16283; 62,30; 1,51; 8,10; 140,00;158,18
+374;Tanhaçu;36,53;EMBASA;21315; 53,12; 4,56;55,89;  36,33; 22,50
+375;Conceição do Jacuípe;35,06;EMBASA;33876; 49,35;11,85;53,36;   0,00; 69,44
+376;Aporá;33,83;EMBASA;18334; 93,99;29,69;58,27;   0,00; 99,78
+377;Acajutiba;33,53;EMBASA;15727; 94,63;29,39;58,27;  24,32; 90,07
+378;Serrinha;32,66;EMBASA;83088;100,00;29,88;59,57;  33,97; 72,95
+379;Barrocas;32,28;EMBASA;16296; 92,89;29,54;59,81;   0,00; 86,26
+380;Condeúba;30,89;EMBASA;18191; 54,46;25,48;49,52;   0,00;107,58
+381;Teofilândia;28,77;EMBASA;23378; 89,63;29,22;53,96;  13,19; 37,89
+382;Jaguarari;27,29;EMBASA;34499; 65,20;29,23;57,87;   0,00; 86,40
+383;Biritinga;18,09;EMBASA;16653; 45,09;29,49;57,26;   0,00; 27,23
